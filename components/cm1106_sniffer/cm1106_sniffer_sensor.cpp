@@ -13,7 +13,7 @@ namespace cm1106_sniffer {
 
 static const char *TAG = "cm1106_sniffer";
 
-HardwareSerial cm1106Serial(1);
+HardwareSerial cm1106Serial(2);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // We use the secondary cm1106Serial (UART) to receive the data from the CM1106 sensor.
