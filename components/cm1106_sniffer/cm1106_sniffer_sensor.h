@@ -5,12 +5,13 @@
 #pragma once
 
 #include "esphome/core/component.h"
+#include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
 
 namespace esphome {
 namespace cm1106_sniffer {
 
-class CM1106SnifferSensor : public sensor::Sensor, public PollingComponent {
+class CM1106SnifferSensor : public sensor::Sensor, public PollingComponent, public uart::UARTDevice {
 public:
   CM1106SnifferSensor() : PollingComponent(5000) {}
   void setup() override;
