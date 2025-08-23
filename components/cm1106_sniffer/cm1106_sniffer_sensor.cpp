@@ -14,10 +14,10 @@ namespace cm1106_sniffer {
 static const char *TAG = "cm1106_sniffer";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// We use the secondary Serial1 (UART) to receive the data from the CM1106 sensor.
+// We use the secondary cm1106Serial (UART) to receive the data from the CM1106 sensor.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CM1106SnifferSensor::setup() {
-  //Serial1.begin(9600);
+  //cm1106Serial.begin(9600);
   HardwareSerial cm1106Serial(1);
   cm1106Serial.begin(9600, SERIAL_8N1, 21, 20);
 }
@@ -37,21 +37,21 @@ void CM1106SnifferSensor::loop()
   uint8_t expected_header[3] = {0x16, 0x05, 0x01};
 
   // first check if there are sufficient bytes available
-  int available = Serial1.available();
+  int available = cm1106Serial.available();
   if (available < 8) 
     return;
 
   // consume old messages
   while (available >= 16) {
-    Serial1.readBytes(response, 8);
-    available = Serial1.available();
+    cm1106Serial.readBytes(response, 8);
+    available = cm1106Serial.available();
   }
 
   // find the start of the message
   int matched = 0;
   while (matched < sizeof(expected_header)) {
-    if (Serial1.available()) {
-      Serial1.readBytes(response + matched, 1);
+    if (cm1106Serial.available()) {
+      cm1106Serial.readBytes(response + matched, 1);
     } else {
       return; // exit if we didnt find the header and uart queue is empty
     }
@@ -62,12 +62,12 @@ void CM1106SnifferSensor::loop()
     }
   }
   // if we end up here we have found the header
-  available = Serial1.available();
+  available = cm1106Serial.available();
   if (available < sizeof(response) - matched) {
     ESP_LOGW(TAG, "Not enough bytes available after header match: %d", available);
     return; // not enough bytes available to read the rest of the message
   }
-  matched += Serial1.readBytes(&response[matched], sizeof(response) - matched);
+  matched += cm1106Serial.readBytes(&response[matched], sizeof(response) - matched);
 
   // Checksum: 256-(HEAD+LEN+CMD+DATA)%256
   uint8_t crc = 0;
