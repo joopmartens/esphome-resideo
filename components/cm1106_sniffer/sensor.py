@@ -19,7 +19,7 @@ from esphome.const import (
 cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
 
 # Declare the C++ class name and its base classes
-CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106SnifferSensor", cg.PollingComponent, uart.UARTDevice)
+CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", cg.PollingComponent, uart.UARTDevice)
 
 # Dependencies for the component
 DEPENDENCIES = ["uart"]
