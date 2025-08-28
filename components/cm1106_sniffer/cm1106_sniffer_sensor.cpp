@@ -1,6 +1,7 @@
 #include "cm1106_sniffer_sensor.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
+#include "esphome/components/uart/uart.h"
 
 namespace esphome {
 namespace cm1106_sniffer {
