@@ -67,7 +67,6 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
 
 void CM1106Sniffer::dump_config() {
   LOG_SENSOR("CM1106Sniffer", "CM1106Sniffer", this);
-  LOG_UART_SETTINGS(this->uart_component_);
 }
 
 }  // namespace cm1106_sniffer
