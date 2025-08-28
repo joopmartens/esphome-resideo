@@ -16,28 +16,29 @@ from esphome.const import (
 cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
 
 # Explicitly declare the C++ class from the header file
-CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", cg.PollingComponent)
+CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.PollingComponent)
 
 # Define the configuration schema for the component
-CONFIG_SCHEMA = cv.All(
-    cv.Schema(
+CONFIG_SCHEMA = (
+    sensor.sensor_schema(
         {
-            # Component ID
+            "unit_of_measurement": UNIT_PARTS_PER_MILLION,
+            "icon": ICON_MOLECULE_CO2,
+            "accuracy_decimals": 0,
+            "device_class": DEVICE_CLASS_CARBON_DIOXIDE,
+            "state_class": STATE_CLASS_MEASUREMENT,
+        }
+    )
+    .extend(
+        {
             cv.GenerateID(): cv.declare_id(CM1106Sniffer),
-            # The component requires a UART ID to connect to
-            cv.Required(CONF_UART_ID): cv.use_id(uart.UARTComponent),
-            # Define an optional CO2 sensor within the component
-            cv.Optional(CONF_CO2): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PARTS_PER_MILLION,
-                icon=ICON_MOLECULE_CO2,
-                accuracy_decimals=0,
-                device_class=DEVICE_CLASS_CARBON_DIOXIDE,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
+            # The component requires the UART bus ID to connect to
+            cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
     )
     .extend(cv.polling_component_schema("10s"))
 )
+
 
 def to_yaml(config):
     # This function is not strictly needed for this simple sensor, but is
