@@ -12,10 +12,9 @@ from esphome.const import (
 
 # Define the namespace for the C++ component
 cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
-# Define the C++ class
-CM1106Sniffer = cm1106_sniffer_ns.class_(
-    "CM1106Sniffer", sensor.Sensor, cg.Component, uart.UARTDevice
-)
+
+# Explicitly declare the C++ class from the header file
+CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Component)
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
@@ -32,12 +31,12 @@ CONFIG_SCHEMA = (
         {
             cv.GenerateID(): cv.declare_id(CM1106Sniffer),
             # The component requires the UART bus ID to connect to
-            #cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTDevice),
             cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
     )
     #.extend(cv.polling_component_schema(cv.positive_time_period_milliseconds))
     .extend(cv.polling_component_schema("10s"))
+    
 )
 
 
@@ -51,7 +50,11 @@ async def to_code(config):
     # Get the UART bus ID from the configuration
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
-    await uart.register_uart_device(var, config)
+
+    # Get a reference to the UART component variable
+    uart_component = await cg.get_variable(config[uart.CONF_UART_ID])
+    # Call the setter method on the C++ component
+    cg.add(var.set_uart_parent(uart_component))
 
     # Use a sensor schema
     await sensor.register_sensor(var, config)

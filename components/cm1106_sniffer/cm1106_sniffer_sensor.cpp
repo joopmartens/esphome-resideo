@@ -9,13 +9,20 @@ static const char *const TAG = "cm1106_sniffer";
 
 void CM1106Sniffer::setup() {
   ESP_LOGCONFIG(TAG, "Setting up CM1106 Sniffer Sensor...");
-  this->uart_device_->flush();
+  if (this->uart_component_ == nullptr) {
+    ESP_LOGE(TAG, "UART component not set!");
+    return;
+  }
+  this->uart_component_->flush();
 }
 
 void CM1106Sniffer::loop() {
-  while (this->available()) {
+  if (this->uart_component_ == nullptr) {
+    return;
+  }
+  while (this->uart_component_->available()) {
     uint8_t byte;
-    this->read_byte(&byte);
+    this->uart_component_->read_byte(&byte);
     this->handle_byte(byte);
   }
 }
@@ -59,7 +66,7 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
 
 void CM1106Sniffer::dump_config() {
   LOG_SENSOR("CM1106Sniffer", "CM1106Sniffer", this);
-  LOG_UART_DEVICE(this->uart_device_);
+  LOG_UART_DEVICE(this->uart_component_);
 }
 
 }  // namespace cm1106_sniffer
