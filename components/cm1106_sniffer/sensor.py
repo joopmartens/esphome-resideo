@@ -17,25 +17,17 @@ cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
 CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.PollingComponent)
 
 # Define the configuration schema for the component
-CONFIG_SCHEMA = (
-    sensor.sensor_schema(
-        {
-            "unit_of_measurement": UNIT_PARTS_PER_MILLION,
-            "icon": ICON_MOLECULE_CO2,
-            "accuracy_decimals": 0,
-            "device_class": DEVICE_CLASS_CARBON_DIOXIDE,
-            "state_class": STATE_CLASS_MEASUREMENT,
-        }
-    )
-    .extend(
-        {
-            cv.GenerateID(): cv.declare_id(CM1106Sniffer),
-            # The component requires the UART bus ID to connect to
-            cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
-        }
-    )
-    .extend(cv.polling_component_schema("10s"))
-)
+CONFIG_SCHEMA = sensor.sensor_schema(
+    unit_of_measurement=UNIT_PARTS_PER_MILLION,
+    icon=ICON_MOLECULE_CO2,
+    accuracy_decimals=0,
+    device_class=DEVICE_CLASS_CARBON_DIOXIDE,
+    state_class='measurement',
+).extend({
+    cv.GenerateID(): cv.declare_id(CM1106Sniffer),
+    # The component requires the UART bus ID to connect to
+    cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
+}).extend(cv.polling_component_schema("10s"))
 
 
 def to_yaml(config):
