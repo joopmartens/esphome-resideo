@@ -2,7 +2,7 @@
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/component.h"
-#include "esphome/components/uart/uart_device.h"
+#include "esphome/components/uart/uart.h"
 
 namespace esphome {
 namespace cm1106_sniffer {
