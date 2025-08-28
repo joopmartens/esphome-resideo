@@ -34,7 +34,7 @@ CONFIG_SCHEMA = (
             cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
     )
-    .extend(cv.polling_component_schema("60s"))
+    .extend(cv.polling_component_schema("10s"))
 )
 
 
