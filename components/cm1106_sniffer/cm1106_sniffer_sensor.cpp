@@ -39,6 +39,9 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
     return;
   }
 
+  // Log the received frame for debugging
+  ESP_LOGD(TAG, "Received frame: %s", format_hex_pretty(this->buffer_, 9).c_str());
+
   if (this->buffer_[0] != 0x16) {
     ESP_LOGW(TAG, "Invalid start byte: 0x%02X", this->buffer_[0]);
     this->reset_buffer_();
@@ -49,9 +52,7 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
   for (int i = 0; i < 8; ++i) {
     checksum += this->buffer_[i];
   }
-  // Corrected checksum calculation based on CM1106 datasheet
-  checksum = 0xFF - checksum + 1;
-
+  
   if (this->buffer_[8] != checksum) {
     ESP_LOGW(TAG, "Checksum mismatch: calculated 0x%02X, received 0x%02X", checksum, this->buffer_[8]);
     this->reset_buffer_();
