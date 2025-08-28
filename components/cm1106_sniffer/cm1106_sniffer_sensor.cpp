@@ -49,6 +49,7 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
   for (int i = 0; i < 8; ++i) {
     checksum += this->buffer_[i];
   }
+  // Corrected checksum calculation based on CM1106 datasheet
   checksum = 0xFF - checksum + 1;
 
   if (this->buffer_[8] != checksum) {
