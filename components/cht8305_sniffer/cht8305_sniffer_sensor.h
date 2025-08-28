@@ -9,7 +9,7 @@
 namespace esphome {
 namespace cht8305_sniffer {
 
-class CHT8305SnifferSensor : public PollingComponent {
+class CHT8305SnifferSensor : public sensor::Sensor, public PollingComponent {
  public:
   // Default constructor required by the ESPHome framework.
   CHT8305SnifferSensor()
