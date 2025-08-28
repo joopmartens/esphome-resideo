@@ -89,7 +89,7 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
 
 void CM1106Sniffer::dump_config() {
   ESP_LOGCONFIG(TAG, "cm1106_sniffer:");
-  //LOG_SENSOR("CM1106Sniffer", "CM1106Sniffer", this);
+  LOG_SENSOR("CM1106Sniffer", "CM1106Sniffer", this);
 }
 
 void CM1106Sniffer::update() {
