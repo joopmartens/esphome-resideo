@@ -13,14 +13,13 @@ from esphome.const import (
 # Define the namespace for the C++ component
 cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
 # Define the C++ class
-CM1106SnifferSensor = cm1106_sniffer_ns.class_(
-    "CM1106SnifferSensor", sensor.Sensor, cg.Component, uart.UARTDevice
+CM1106Sniffer = cm1106_sniffer_ns.class_(
+    "CM1106Sniffer", sensor.Sensor, cg.Component, uart.UARTDevice
 )
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
     sensor.sensor_schema(
-        # The arguments are now passed as a dictionary.
         {
             "unit_of_measurement": UNIT_PARTS_PER_MILLION,
             "icon": ICON_GAUGE,
@@ -31,7 +30,7 @@ CONFIG_SCHEMA = (
     )
     .extend(
         {
-            cv.GenerateID(): cv.declare_id(CM1106SnifferSensor),
+            cv.GenerateID(): cv.declare_id(CM1106Sniffer),
             # The component requires the UART bus ID to connect to
             cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTDevice),
         }

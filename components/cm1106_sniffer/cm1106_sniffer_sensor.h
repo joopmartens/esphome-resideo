@@ -7,7 +7,7 @@
 namespace esphome {
 namespace cm1106_sniffer {
 
-class CM1106SnifferSensor : public sensor::Sensor, public Component, public uart::UARTDevice {
+class CM1106Sniffer : public sensor::Sensor, public Component, public uart::UARTDevice {
  public:
   // Public methods required by ESPHome
   void setup() override;
