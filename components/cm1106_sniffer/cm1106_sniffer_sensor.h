@@ -3,6 +3,7 @@
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/uart/uart.h"
 #include "esphome/core/component.h"
+#include "esphome/core/helpers.h"
 
 namespace esphome {
 namespace cm1106_sniffer {
@@ -12,6 +13,7 @@ class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
   void setup() override;
   void loop() override;
   void dump_config() override;
+  void update() override; // Add the missing update method
 
   void set_uart_parent(uart::UARTComponent *uart_parent) { this->uart_component_ = uart_parent; }
 
