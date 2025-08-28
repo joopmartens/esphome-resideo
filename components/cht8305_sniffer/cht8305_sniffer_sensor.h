@@ -27,7 +27,6 @@ class CHT8305SnifferSensor : public PollingComponent {
     this->humidity_sensor_ = humidity_sensor;
   }
 
- protected:
   // Pin numbers from the YAML configuration.
   int scl_pin_;
   int sda_pin_;
