@@ -8,49 +8,51 @@
 #include <freertos/FreeRTOS.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
+#include <vector>
+#include <algorithm>
+#include <string.h>
 
 namespace esphome {
 namespace cht8305_sniffer {
 
 static const char *TAG = "cht8305_sniffer";
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 // Global pointer to the class instance to allow ISRs (C functions) to access class members.
 static CHT8305SnifferSensor *global_instance = nullptr;
 
-// A NACK will end our sniffing session
-#define I2C_HANDLE_NACK if (gpio_get_level(global_instance->PIN_SDA_) > 0) { global_instance->i2cIdle_ = true; return; }
+// A NACK will end our sniffing session.
+#define I2C_HANDLE_NACK if (gpio_get_level(global_instance->pin_sda_) > 0) { global_instance->i2c_idle_ = true; return; }
 
 // Rising SCL makes us reading the SDA pin. This is our ISR handler.
 void IRAM_ATTR i2cTriggerOnRaisingSCL(void *arg) {
-    if (global_instance->i2cIdle_) {
+    if (global_instance->i2c_idle_) {
         return;
     }
 
-    // Get the value from SDA using the ESP-IDF function
-    int sda_val = gpio_get_level(global_instance->PIN_SDA_);
+    // Get the value from SDA using the ESP-IDF function.
+    int sda_val = gpio_get_level(global_instance->pin_sda_);
 
-    // First byte is 7-bit address, 8th bit is R/W
-    if (global_instance->byteIdx_ == 0 && global_instance->bitIdx_ == 7) {
-        global_instance->writing_ = (sda_val == 0); // if SDA is LOW, the master wants to write
-    } else if (global_instance->bitIdx_ != 8) { // data bit
+    // First byte is 7-bit address, 8th bit is R/W.
+    if (global_instance->byte_idx_ == 0 && global_instance->bit_idx_ == 7) {
+        global_instance->writing_ = (sda_val == 0); // if SDA is LOW, the master wants to write.
+    } else if (global_instance->bit_idx_ != 8) { // data bit.
         global_instance->data_ = (global_instance->data_ << 1) | (sda_val > 0 ? 1 : 0);
-    } else { // we are at the ninth (N)ACK bit
-        if (global_instance->byteIdx_ == 0) {  //slave address byte
-            I2C_HANDLE_NACK; // On NACK we end the conversation as the slave declined and a restart (Sr) is expected
+    } else { // We are at the ninth (N)ACK bit.
+        if (global_instance->byte_idx_ == 0) {  // Slave address byte.
+            I2C_HANDLE_NACK; // On NACK we end the conversation as the slave declined.
             global_instance->device_address_ = global_instance->data_;
-        } else if (global_instance->byteIdx_ == 1 && global_instance->writing_) { // if the master is writing, the second byte is the register address
-            I2C_HANDLE_NACK; // On NACK we end the conversation as the slave declined the address
+        } else if (global_instance->byte_idx_ == 1 && global_instance->writing_) { // If the master is writing, the second byte is the register address.
+            I2C_HANDLE_NACK; // On NACK we end the conversation as the slave declined the address.
             global_instance->device_register_ptr_ = global_instance->data_;
         } else {
             global_instance->device_register_[global_instance->device_register_ptr_++] = global_instance->data_;
-            I2C_HANDLE_NACK; // On NACK we end the conversation AFTER storing the data. 
+            I2C_HANDLE_NACK; // On NACK we end the conversation AFTER storing the data.
         }
-        global_instance->byteIdx_++;
+        global_instance->byte_idx_++;
         global_instance->data_ = 0;
-        global_instance->bitIdx_ = -1;
+        global_instance->bit_idx_ = -1;
     }
-    global_instance->bitIdx_++;
+    global_instance->bit_idx_++;
 }
 
 /**
@@ -59,72 +61,69 @@ void IRAM_ATTR i2cTriggerOnRaisingSCL(void *arg) {
  * If SCL is HIGH, a falling edge on SDA is a START, and a rising edge is a STOP.
  */
 void IRAM_ATTR i2cTriggerOnChangeSDA(void *arg) {
-    if (gpio_get_level(global_instance->PIN_SCL_) == 0) {
+    if (gpio_get_level(global_instance->pin_scl_) == 0) {
         return;
     }
 
-    if (gpio_get_level(global_instance->PIN_SDA_) > 0) { // RISING if SDA is HIGH (1) -> STOP
-        global_instance->i2cIdle_ = true;
+    if (gpio_get_level(global_instance->pin_sda_) > 0) { // RISING if SDA is HIGH (1) -> STOP.
+        global_instance->i2c_idle_ = true;
     } else { // FALLING if SDA is LOW -> START?
-        if (global_instance->i2cIdle_) { // If we are idle, this is a START
-            global_instance->bitIdx_ = 0;
-            global_instance->byteIdx_ = 0;
+        if (global_instance->i2c_idle_) { // If we are idle, this is a START.
+            global_instance->bit_idx_ = 0;
+            global_instance->byte_idx_ = 0;
             global_instance->data_ = 0;
-            global_instance->i2cIdle_ = false;
+            global_instance->i2c_idle_ = false;
         }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// We set the SCL and SDA pins to the values given in the configuration.
-// This is now done using ESP-IDF GPIO functions.
+// CHT8305SnifferSensor Class Implementation
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 void CHT8305SnifferSensor::setup() {
     global_instance = this;
 
-    this->PIN_SCL_ = (gpio_num_t)this->scl_pin_;
-    this->PIN_SDA_ = (gpio_num_t)this->sda_pin_;
+    this->pin_scl_ = (gpio_num_t)this->scl_pin_;
+    this->pin_sda_ = (gpio_num_t)this->sda_pin_;
 
-    // Reset variables
+    // Reset variables.
     memset((void *)this->device_register_, 0, sizeof(this->device_register_));
-    this->i2cIdle_ = true;
+    this->i2c_idle_ = true;
     this->device_register_ptr_ = 0;
 
-    // Configure GPIOs using ESP-IDF functions
+    // Configure GPIOs using ESP-IDF functions.
     gpio_config_t scl_config = {
-        .pin_bit_mask = (1ULL << this->PIN_SCL_),
+        .pin_bit_mask = (1ULL << this->pin_scl_),
         .mode = GPIO_MODE_INPUT,
         .pull_up_en = GPIO_PULLUP_ENABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_POSEDGE // Interrupt on rising edge of SCL
+        .intr_type = GPIO_INTR_POSEDGE // Interrupt on rising edge of SCL.
     };
     gpio_config(&scl_config);
 
     gpio_config_t sda_config = {
-        .pin_bit_mask = (1ULL << this->PIN_SDA_),
+        .pin_bit_mask = (1ULL << this->pin_sda_),
         .mode = GPIO_MODE_INPUT,
         .pull_up_en = GPIO_PULLUP_ENABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_ANYEDGE // Interrupt on any edge of SDA
+        .intr_type = GPIO_INTR_ANYEDGE // Interrupt on any edge of SDA.
     };
     gpio_config(&sda_config);
 
-    // Install the global GPIO ISR service
+    // Install the global GPIO ISR service.
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
 
-    // Add the specific handlers for each pin
-    ESP_ERROR_CHECK(gpio_isr_handler_add(this->PIN_SCL_, i2cTriggerOnRaisingSCL, nullptr));
-    ESP_ERROR_CHECK(gpio_isr_handler_add(this->PIN_SDA_, i2cTriggerOnChangeSDA, nullptr));
+    // Add the specific handlers for each pin.
+    ESP_ERROR_CHECK(gpio_isr_handler_add(this->pin_scl_, i2cTriggerOnRaisingSCL, nullptr));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(this->pin_sda_, i2cTriggerOnChangeSDA, nullptr));
 
-    ESP_LOGI(TAG, "CHT8305 Sniffer initialized on SCL:%d, SDA:%d", (int)this->PIN_SCL_, (int)this->PIN_SDA_);
+    ESP_LOGI(TAG, "CHT8305 Sniffer initialized on SCL:%d, SDA:%d", (int)this->pin_scl_, (int)this->pin_sda_);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Loop and Update methods remain unchanged as they are not dependent on Arduino-specific functions.
-///////////////////////////////////////////////////////////////////////////////////////////////////
 void CHT8305SnifferSensor::loop() {
     unsigned long now = millis();
-    if (this->i2cIdle_ && (now - this->last_sample_time_ > 100)) {
+    if (this->i2c_idle_ && (now - this->last_sample_time_ > 100)) {
         this->last_sample_time_ = now;
         uint16_t temp = (uint16_t)this->device_register_[0] << 8 | this->device_register_[1];
         uint16_t humidity = (uint16_t)this->device_register_[2] << 8 | this->device_register_[3];
