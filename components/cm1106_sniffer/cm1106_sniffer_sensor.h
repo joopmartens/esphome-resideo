@@ -24,7 +24,7 @@ class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
   uart::UARTComponent *uart_component_{nullptr};
   uint8_t buffer_[9];
   uint8_t buffer_pos_{0};
-  bool should_update_ = true;
+  uint16_t co2_value_ = 0;
 };
 
 }  // namespace cm1106_sniffer

@@ -21,10 +21,6 @@ void CM1106Sniffer::loop() {
   if (this->uart_component_ == nullptr) {
     return;
   }
-  // Only process data if an update is due
-  if (!this->should_update_) {
-    return;
-  }
   while (this->uart_component_->available()) {
     uint8_t byte;
     this->uart_component_->read_byte(&byte);
@@ -67,11 +63,10 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
 
   uint16_t co2_value = (uint16_t) this->buffer_[3] << 8 | this->buffer_[4];
   
-  this->publish_state(co2_value);
-  ESP_LOGD(TAG, "CO2 value: %d ppm", co2_value);
+  this->co2_value_ = co2_value; // Store the value instead of publishing
+  ESP_LOGD(TAG, "CO2 value: %d ppm (stored)", co2_value);
   
   this->reset_buffer_();
-  this->should_update_ = false; // Reset the flag after a successful reading
 }
 
 void CM1106Sniffer::dump_config() {
@@ -79,8 +74,8 @@ void CM1106Sniffer::dump_config() {
 }
 
 void CM1106Sniffer::update() {
-  this->should_update_ = true;
-  this->loop();
+  // Publish the most recent value at the configured interval
+  this->publish_state(this->co2_value_);
 }
 
 void CM1106Sniffer::reset_buffer_() {
