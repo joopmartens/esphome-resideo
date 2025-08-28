@@ -3,6 +3,8 @@ import esphome.config_validation as cv
 from esphome.components import sensor, uart
 from esphome.const import (
     CONF_ID,
+    CONF_CO2,
+    CONF_UART_ID,
     CONF_UPDATE_INTERVAL,
     UNIT_PARTS_PER_MILLION,
     ICON_MOLECULE_CO2,
@@ -25,7 +27,7 @@ CONFIG_SCHEMA = cv.All(
             # The component requires a UART ID to connect to
             cv.Required(CONF_UART_ID): cv.use_id(uart.UARTComponent),
             # Define an optional CO2 sensor within the component
-            cv.Optional(CONF_CO2, default={}): sensor.sensor_schema(
+            cv.Optional(CONF_CO2): sensor.sensor_schema(
                 unit_of_measurement=UNIT_PARTS_PER_MILLION,
                 icon=ICON_MOLECULE_CO2,
                 accuracy_decimals=0,
