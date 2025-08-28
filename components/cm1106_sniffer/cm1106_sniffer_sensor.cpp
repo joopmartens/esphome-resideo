@@ -9,12 +9,12 @@ static const char *const TAG = "cm1106_sniffer";
 
 void CM1106Sniffer::setup() {
   ESP_LOGCONFIG(TAG, "Setting up CM1106 Sniffer Sensor...");
-  // Clear any data in the UART buffer
-  this->uart_device_->flush();
+  // Clear any data in the UART bus.
+  this->uart_bus_->flush();
 }
 
 void CM1106Sniffer::loop() {
-  // Read any available data from the UART bus
+  // Read any available data from the UART bus.
   while (this->available()) {
     uint8_t byte;
     this->read_byte(&byte);

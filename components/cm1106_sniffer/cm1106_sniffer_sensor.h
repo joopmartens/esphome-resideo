@@ -15,8 +15,9 @@ class CM1106Sniffer : public esphome::PollingComponent, public uart::UARTDevice 
   void dump_config() override;
   void update() override;
 
-  // Setter to link the component to the ESPHome sensor.
+  // Setters to link the component to the ESPHome sensor and UART bus.
   void set_co2_sensor(sensor::Sensor *sensor) { this->co2_sensor_ = sensor; }
+  void set_uart_bus(uart::UARTComponent *bus) { this->uart_bus_ = bus; }
 
  protected:
   // Private helper methods for handling the data stream
@@ -27,6 +28,7 @@ class CM1106Sniffer : public esphome::PollingComponent, public uart::UARTDevice 
   uint8_t buffer_[9] = {0};
   uint8_t buffer_pos_{0};
   sensor::Sensor *co2_sensor_{nullptr};
+  uart::UARTComponent *uart_bus_{nullptr};
 };
 
 }  // namespace cm1106_sniffer
