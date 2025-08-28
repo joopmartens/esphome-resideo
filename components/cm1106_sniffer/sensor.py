@@ -14,7 +14,7 @@ from esphome.const import (
 cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
 
 # Explicitly declare the C++ class from the header file
-CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Component)
+CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.PollingComponent)
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
@@ -34,9 +34,7 @@ CONFIG_SCHEMA = (
             cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
     )
-    #.extend(cv.polling_component_schema(cv.positive_time_period_milliseconds))
-    .extend(cv.polling_component_schema("10s"))
-    
+    .extend(cv.polling_component_schema("60s")) # Corrected the call to polling_component_schema
 )
 
 
