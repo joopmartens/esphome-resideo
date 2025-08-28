@@ -21,10 +21,20 @@ void CM1106Sniffer::loop() {
   if (this->uart_component_ == nullptr) {
     return;
   }
+  // Only process one frame if an update is due
+  if (!this->should_update_) {
+    return;
+  }
   while (this->uart_component_->available()) {
     uint8_t byte;
     this->uart_component_->read_byte(&byte);
     this->handle_byte(byte);
+    // After handling one full frame, stop processing
+    if (this->frame_ready_) {
+      this->should_update_ = false;
+      this->frame_ready_ = false;
+      return;
+    }
   }
 }
 
@@ -67,6 +77,7 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
   ESP_LOGD(TAG, "CO2 value: %d ppm (stored)", co2_value);
   
   this->reset_buffer_();
+  this->frame_ready_ = true; // Signal that a new frame has been processed
 }
 
 void CM1106Sniffer::dump_config() {
@@ -74,7 +85,8 @@ void CM1106Sniffer::dump_config() {
 }
 
 void CM1106Sniffer::update() {
-  // Publish the most recent value at the configured interval
+  this->should_update_ = true;
+  this->loop();
   this->publish_state(this->co2_value_);
 }
 
