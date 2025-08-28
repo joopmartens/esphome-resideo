@@ -14,16 +14,14 @@ class CHT8305SnifferSensor : public PollingComponent {
   CHT8305SnifferSensor()
       : PollingComponent(100) {}
 
-  // The constructor initializes the polling interval and pin numbers.
-  CHT8305SnifferSensor(int scl_pin, int sda_pin)
-      : PollingComponent(100), scl_pin_(scl_pin), sda_pin_(sda_pin) {}
-
   // Lifecycle methods for ESPHome.
   void setup() override;
   void loop() override;
   void update() override;
 
-  // Setters to link the component to the ESPHome sensors.
+  // Setters for the pins and to link the component to the ESPHome sensors.
+  void set_scl_pin(int scl_pin) { this->scl_pin_ = scl_pin; }
+  void set_sda_pin(int sda_pin) { this->sda_pin_ = sda_pin; }
   void set_temperature_sensor(sensor::Sensor *temperature_sensor) {
     this->temperature_sensor_ = temperature_sensor;
   }
