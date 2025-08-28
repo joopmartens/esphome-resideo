@@ -69,5 +69,13 @@ void CM1106Sniffer::dump_config() {
   LOG_SENSOR("CM1106Sniffer", "CM1106Sniffer", this);
 }
 
+void CM1106Sniffer::update() {
+  this->loop();
+}
+
+void CM1106Sniffer::reset_buffer_() {
+  this->buffer_pos_ = 0;
+}
+
 }  // namespace cm1106_sniffer
 }  // namespace esphome
