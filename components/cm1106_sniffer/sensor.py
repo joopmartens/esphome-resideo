@@ -16,7 +16,7 @@ from esphome.const import (
 cm1106_sniffer_ns = cg.esphome_ns.namespace("cm1106_sniffer")
 
 # Explicitly declare the C++ class from the header file
-CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.PollingComponent)
+CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", cg.PollingComponent)
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = cv.All(
