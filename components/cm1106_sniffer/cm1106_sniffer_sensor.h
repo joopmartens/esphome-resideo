@@ -13,7 +13,7 @@ class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
   void setup() override;
   void loop() override;
   void dump_config() override;
-  void update() override; // Add the missing update method
+  void update() override;
 
   void set_uart_parent(uart::UARTComponent *uart_parent) { this->uart_component_ = uart_parent; }
 
@@ -24,6 +24,7 @@ class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
   uart::UARTComponent *uart_component_{nullptr};
   uint8_t buffer_[9];
   uint8_t buffer_pos_{0};
+  bool should_update_ = true;
 };
 
 }  // namespace cm1106_sniffer
