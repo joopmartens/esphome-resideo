@@ -49,9 +49,11 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
   }
 
   uint8_t checksum = 0;
-  for (int i = 0; i < 8; ++i) {
+  // Checksum is the two's complement of the sum of bytes 1 through 7.
+  for (int i = 1; i < 8; ++i) {
     checksum += this->buffer_[i];
   }
+  checksum = 0xFF - checksum + 1;
   
   if (this->buffer_[8] != checksum) {
     ESP_LOGW(TAG, "Checksum mismatch: calculated 0x%02X, received 0x%02X", checksum, this->buffer_[8]);
