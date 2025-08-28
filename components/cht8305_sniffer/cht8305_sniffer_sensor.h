@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
 #include "esphome/components/sensor/sensor.h"
+#include <driver/gpio.h> // Include this header to define gpio_num_t
 #include <vector>
 
 namespace esphome {
