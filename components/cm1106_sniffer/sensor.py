@@ -32,7 +32,8 @@ CONFIG_SCHEMA = (
         {
             cv.GenerateID(): cv.declare_id(CM1106Sniffer),
             # The component requires the UART bus ID to connect to
-            cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTDevice),
+            #cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTDevice),
+            cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
     )
     #.extend(cv.polling_component_schema(cv.positive_time_period_milliseconds))
