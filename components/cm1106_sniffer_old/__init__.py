@@ -1,1 +1,0 @@
-"""ESPHome component: cm1106_sniffer."""
