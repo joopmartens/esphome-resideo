@@ -7,9 +7,9 @@
 namespace esphome {
 namespace cm1106_sniffer {
 
-class CM1106Sniffer : public PollingComponent, public uart::UARTDevice {
+class CM1106Sniffer : public esphome::PollingComponent, public uart::UARTDevice {
  public:
-  // Lifecycle methods for ESPHome.
+  // Public methods required by ESPHome
   void setup() override;
   void loop() override;
   void dump_config() override;
@@ -19,11 +19,13 @@ class CM1106Sniffer : public PollingComponent, public uart::UARTDevice {
   void set_co2_sensor(sensor::Sensor *sensor) { this->co2_sensor_ = sensor; }
 
  protected:
+  // Private helper methods for handling the data stream
   void handle_byte(uint8_t byte);
   void reset_buffer_();
 
+  // Member variables for the state machine
   uint8_t buffer_[9] = {0};
-  uint8_t buffer_pos_ = 0;
+  uint8_t buffer_pos_{0};
   sensor::Sensor *co2_sensor_{nullptr};
 };
 
