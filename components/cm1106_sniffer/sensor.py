@@ -5,7 +5,7 @@ from esphome.const import (
     CONF_ID,
     CONF_UPDATE_INTERVAL,
     UNIT_PARTS_PER_MILLION,
-    ICON_GAUGE,
+    ICON_MOLECULE_CO2,
     STATE_CLASS_MEASUREMENT,
     DEVICE_CLASS_CARBON_DIOXIDE,
 )
@@ -21,7 +21,7 @@ CONFIG_SCHEMA = (
     sensor.sensor_schema(
         {
             "unit_of_measurement": UNIT_PARTS_PER_MILLION,
-            "icon": ICON_GAUGE,
+            "icon": ICON_MOLECULE_CO2,
             "accuracy_decimals": 0,
             "device_class": DEVICE_CLASS_CARBON_DIOXIDE,
             "state_class": STATE_CLASS_MEASUREMENT,

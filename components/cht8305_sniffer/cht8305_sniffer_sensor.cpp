@@ -158,7 +158,8 @@ void CHT8305SnifferSensor::update() {
 }
 
 void CHT8305SnifferSensor::dump_config() {
-  LOG_SENSOR("CHT8305SnifferSensor", "CHT8305SnifferSensor", this);
+  ESP_LOGCONFIG(TAG, "cht8305_sniffer:");
+  //LOG_SENSOR("CHT8305SnifferSensor", "CHT8305SnifferSensor", this);
 }
 
 } // namespace cht8305_sniffer
