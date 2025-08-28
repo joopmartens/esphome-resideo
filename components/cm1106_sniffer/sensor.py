@@ -3,8 +3,6 @@ import esphome.config_validation as cv
 from esphome.components import sensor, uart
 from esphome.const import (
     CONF_ID,
-    CONF_CO2,
-    CONF_UART_ID,
     CONF_UPDATE_INTERVAL,
     UNIT_PARTS_PER_MILLION,
     ICON_MOLECULE_CO2,
