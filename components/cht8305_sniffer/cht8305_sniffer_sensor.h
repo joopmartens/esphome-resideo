@@ -18,6 +18,7 @@ class CHT8305SnifferSensor : public PollingComponent {
   // Lifecycle methods for ESPHome.
   void setup() override;
   void loop() override;
+  void dump_config() override;
   void update() override;
 
   // Setters for the pins and to link the component to the ESPHome sensors.
