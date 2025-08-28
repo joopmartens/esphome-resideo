@@ -157,8 +157,8 @@ void CHT8305SnifferSensor::update() {
         this->humidity_sensor_->publish_state(hum);
 }
 
-void CM1106Sniffer::dump_config() {
-  LOG_SENSOR("cht8305Sniffer", "cht8305Sniffer", this);
+void CHT8305SnifferSensor::dump_config() {
+  LOG_SENSOR("CHT8305SnifferSensor", "CHT8305SnifferSensor", this);
 }
 
 } // namespace cht8305_sniffer
