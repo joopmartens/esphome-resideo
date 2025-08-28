@@ -1,7 +1,3 @@
-/**
-  @AUTHOR (c) 2025 Pluimvee (Erik Veer)
-
- */
 #pragma once
 
 #include "esphome/core/component.h"
