@@ -18,13 +18,7 @@ CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Poll
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
-    sensor.sensor_schema(        
-        unit_of_measurement=UNIT_PARTS_PER_MILLION,
-        icon=ICON_MOLECULE_CO2,
-        accuracy_decimals=0,
-        device_class=DEVICE_CLASS_CARBON_DIOXIDE,
-        state_class=STATE_CLASS_MEASUREMENT,
-    )
+    sensor.sensor_schema()
     .extend(
         {
             cv.GenerateID(): cv.declare_id(CM1106Sniffer),
@@ -46,6 +40,15 @@ async def to_code(config):
     # Get the UART bus ID from the configuration
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
+
+    # --- NEW: Explicitly set the sensor's fixed properties ---
+    # This is a more reliable method than setting defaults in the schema.
+    cg.add(var.set_unit_of_measurement(UNIT_PARTS_PER_MILLION))
+    cg.add(var.set_icon(ICON_MOLECULE_CO2))
+    cg.add(var.set_accuracy_decimals(0))
+    cg.add(var.set_device_class(DEVICE_CLASS_CARBON_DIOXIDE))
+    cg.add(var.set_state_class(STATE_CLASS_MEASUREMENT))
+    # --- End of new code ---
 
     # Get a reference to the UART component variable
     uart_component = await cg.get_variable(config[uart.CONF_UART_ID])
