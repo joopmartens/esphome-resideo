@@ -64,7 +64,7 @@ void CM1106Sniffer::reset_buffer_() {
 
 void CM1106Sniffer::dump_config() {
   ESP_LOGCONFIG(TAG, "CM1106 Sniffer");
-  this->dump_polling_component_config(TAG);
+  PollingComponent::dump_config();
   if (this->co2_sensor_ != nullptr) {
     LOG_SENSOR("  CO2 Sensor", "CO2", this->co2_sensor_);
   }
