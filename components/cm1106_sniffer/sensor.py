@@ -3,11 +3,13 @@ import esphome.config_validation as cv
 from esphome.components import sensor, uart
 from esphome.const import (
     CONF_ID,
-    CONF_UPDATE_INTERVAL,
+    CONF_ICON,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_ACCURACY_DECIMALS,
+    DEVICE_CLASS_CARBON_DIOXIDE,
+    STATE_CLASS_MEASUREMENT,
     UNIT_PARTS_PER_MILLION,
     ICON_MOLECULE_CO2,
-    STATE_CLASS_MEASUREMENT,
-    DEVICE_CLASS_CARBON_DIOXIDE,
 )
 
 # Define the namespace for the C++ component
