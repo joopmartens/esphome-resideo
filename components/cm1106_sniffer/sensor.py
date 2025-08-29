@@ -49,7 +49,7 @@ async def to_code(config):
     cg.add(var.set_icon(ICON_MOLECULE_CO2))
     cg.add(var.set_accuracy_decimals(0))
     cg.add(var.set_device_class(DEVICE_CLASS_CARBON_DIOXIDE))
-    cg.add(var.set_state_class(STATE_CLASS_MEASUREMENT))
+    cg.add(var.set_state_class(sensor.STATE_CLASSES[STATE_CLASS_MEASUREMENT]))
     # --- End of new code ---
 
     # Get a reference to the UART component variable
