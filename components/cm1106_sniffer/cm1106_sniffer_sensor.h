@@ -12,9 +12,11 @@ class CM1106Sniffer : public PollingComponent, public uart::UARTDevice {
   void set_co2_sensor(sensor::Sensor *co2_sensor) { this->co2_sensor_ = co2_sensor; }
   void set_uart_bus(uart::UARTComponent *uart_bus) { this->set_uart_parent(uart_bus); }
 
+  // These virtual methods must be declared here to be implemented in the source file
   void setup() override;
   void loop() override;
   void dump_config() override;
+  void update() override;
 
  protected:
   void handle_byte(uint8_t byte);
