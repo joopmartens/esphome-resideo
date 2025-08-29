@@ -47,15 +47,13 @@ def to_yaml(config):
     pass
 
 
-async def to_code(config):
-    # Get the UART bus ID from the configuration
+def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
+    yield cg.register_component(var, config)
 
-    # Get a reference to the UART component variable
-    uart_component = await cg.get_variable(config[uart.CONF_UART_ID])
-    # Call the setter method on the C++ component
-    cg.add(var.set_uart_parent(uart_component))
+    parent = yield cg.get_variable(config[CONF_UART_ID])
+    cg.add(var.set_uart_bus(parent))
 
-    # Use a sensor schema
-    await sensor.register_sensor(var, config)
+    if CONF_CO2 in config:
+        sens = yield sensor.new_sensor(config[CONF_CO2])
+        cg.add(var.set_co2_sensor(sens))
