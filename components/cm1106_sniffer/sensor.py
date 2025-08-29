@@ -18,14 +18,12 @@ CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Poll
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
-    sensor.sensor_schema(
-        {
-            "unit_of_measurement": UNIT_PARTS_PER_MILLION,
-            "icon": ICON_MOLECULE_CO2,
-            "accuracy_decimals": 0,
-            "device_class": DEVICE_CLASS_CARBON_DIOXIDE,
-            "state_class": STATE_CLASS_MEASUREMENT,
-        }
+    sensor.sensor_schema(        
+        unit_of_measurement=UNIT_PARTS_PER_MILLION,
+        icon=ICON_MOLECULE_CO2,
+        accuracy_decimals=0,
+        device_class=DEVICE_CLASS_CARBON_DIOXIDE,
+        state_class=STATE_CLASS_MEASUREMENT,
     )
     .extend(
         {
