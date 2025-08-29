@@ -4,6 +4,7 @@ from esphome.components import sensor, uart
 from esphome.const import (
     CONF_ID,
     CONF_UPDATE_INTERVAL,
+    CONF_CO2,
     UNIT_PARTS_PER_MILLION,
     ICON_MOLECULE_CO2,
     STATE_CLASS_MEASUREMENT,
@@ -18,16 +19,20 @@ CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Poll
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
-    sensor.sensor_schema(        
-        unit_of_measurement=UNIT_PARTS_PER_MILLION,
-        icon=ICON_MOLECULE_CO2,
-        accuracy_decimals=0,
-        device_class=DEVICE_CLASS_CARBON_DIOXIDE,
-        state_class="measurement",
-    )
-    .extend(
+    cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(CM1106Sniffer),
+            cv.Optional(CONF_CO2): sensor.sensor_schema(
+                unit_of_measurement=UNIT_PARTS_PER_MILLION,
+                icon=ICON_MOLECULE_CO2,
+                accuracy_decimals=0,
+                device_class=DEVICE_CLASS_CARBON_DIOXIDE,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+        },
+    )
+    .extend(
+        {     
             # The component requires the UART bus ID to connect to
             cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
