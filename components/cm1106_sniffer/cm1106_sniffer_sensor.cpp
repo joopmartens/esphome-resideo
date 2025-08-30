@@ -68,6 +68,8 @@ void CM1106SnifferSensor::reset_buffer_() {
   std::fill(this->buffer_, this->buffer_ + 9, 0);
 }
 
+//---
+// Configuration logging. This is used by ESPHome to print component information during startup.
 void CM1106SnifferSensor::dump_config() {
   LOG_COMPONENT_CONFIG(TAG, "CM1106 Sniffer");
   LOG_UART_DEVICE(this);
