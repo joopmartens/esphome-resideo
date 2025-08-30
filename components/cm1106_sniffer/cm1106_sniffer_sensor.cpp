@@ -21,20 +21,10 @@ void CM1106Sniffer::loop() {
   if (this->uart_component_ == nullptr) {
     return;
   }
-  // Only process one frame if an update is due
-  if (!this->should_update_) {
-    return;
-  }
   while (this->uart_component_->available()) {
     uint8_t byte;
     this->uart_component_->read_byte(&byte);
     this->handle_byte(byte);
-    // After handling one full frame, stop processing
-    if (this->frame_ready_) {
-      this->should_update_ = false;
-      this->frame_ready_ = false;
-      return;
-    }
   }
 }
 
@@ -73,21 +63,23 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
 
   uint16_t co2_value = (uint16_t) this->buffer_[3] << 8 | this->buffer_[4];
   
-  this->co2_value_ = co2_value; // Store the value instead of publishing
-  ESP_LOGD(TAG, "CO2 value: %d ppm (stored)", co2_value);
+  // Publish the new state directly from the handle_byte function
+  this->publish_state(co2_value);
+  ESP_LOGD(TAG, "CO2 value: %d ppm", co2_value);
   
   this->reset_buffer_();
-  this->frame_ready_ = true; // Signal that a new frame has been processed
 }
 
 void CM1106Sniffer::dump_config() {
-  LOG_SENSOR("CM1106Sniffer", "CM1106Sniffer", this);
+  // Use the base class methods to dump all configuration properties
+  PollingComponent::dump_config();
+  sensor::Sensor::dump_config();
 }
 
 void CM1106Sniffer::update() {
-  this->should_update_ = true;
-  this->loop();
-  this->publish_state(this->co2_value_);
+  // Only send the command to request data from the sensor
+  const uint8_t request_command[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+  this->uart_component_->write_array(request_command, 9);
 }
 
 void CM1106Sniffer::reset_buffer_() {
