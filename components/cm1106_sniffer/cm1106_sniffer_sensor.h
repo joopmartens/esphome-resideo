@@ -3,6 +3,11 @@
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/core/log.h"
+#include "esphome/core/helpers.h"
+#include <vector>
+#include <algorithm>
+#include <string.h>
 
 namespace esphome {
 namespace cm1106_sniffer {
