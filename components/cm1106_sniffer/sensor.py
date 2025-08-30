@@ -11,6 +11,10 @@ from esphome.const import (
     STATE_CLASS_MEASUREMENT,
     CONF_ACCURACY_DECIMALS,
     CONF_NAME,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_ICON,
+    CONF_DEVICE_CLASS,
+    CONF_STATE_CLASS
 )
 
 # Define the namespace for the component
@@ -35,5 +39,18 @@ CONFIG_SCHEMA = cv.All(
 def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     yield cg.register_component(var, config)
-    yield sensor.register_sensor(var, config)
     yield uart.register_uart_device(var, config)
+
+    # Manually set the sensor properties on the component
+    if CONF_UNIT_OF_MEASUREMENT in config:
+        cg.add(var.set_unit_of_measurement(config[CONF_UNIT_OF_MEASUREMENT]))
+    if CONF_ICON in config:
+        cg.add(var.set_icon(config[CONF_ICON]))
+    if CONF_DEVICE_CLASS in config:
+        cg.add(var.set_device_class(config[CONF_DEVICE_CLASS]))
+    if CONF_STATE_CLASS in config:
+        cg.add(var.set_state_class(config[CONF_STATE_CLASS]))
+    if CONF_ACCURACY_DECIMALS in config:
+        cg.add(var.set_accuracy_decimals(config[CONF_ACCURACY_DECIMALS]))
+    if CONF_NAME in config:
+        cg.add(var.set_name(config[CONF_NAME]))
