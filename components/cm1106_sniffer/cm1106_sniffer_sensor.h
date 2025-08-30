@@ -3,29 +3,31 @@
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/uart/uart.h"
 #include "esphome/core/component.h"
+#include "esphome/core/helpers.h"
 
 namespace esphome {
 namespace cm1106_sniffer {
 
-class CM1106Sniffer : public PollingComponent, public uart::UARTDevice {
+class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
  public:
-  void set_co2_sensor(sensor::Sensor *co2_sensor) { this->co2_sensor_ = co2_sensor; }
-  void set_uart_bus(uart::UARTComponent *uart_bus) { this->set_uart_parent(uart_bus); }
-
-  // These virtual methods must be declared here to be implemented in the source file
   void setup() override;
   void loop() override;
   void dump_config() override;
   void update() override;
 
+  void set_uart_parent(uart::UARTComponent *uart_parent) { this->uart_component_ = uart_parent; }
+
  protected:
   void handle_byte(uint8_t byte);
   void reset_buffer_();
-
-  sensor::Sensor *co2_sensor_{nullptr};
+  
+  uart::UARTComponent *uart_component_{nullptr};
   uint8_t buffer_[9];
   uint8_t buffer_pos_{0};
+  uint16_t co2_value_ = 0;
+  bool should_update_ = true;
+  bool frame_ready_ = false;
 };
 
-} // namespace cm1106_sniffer
-} // namespace esphome
+}  // namespace cm1106_sniffer
+}  // namespace esphome
