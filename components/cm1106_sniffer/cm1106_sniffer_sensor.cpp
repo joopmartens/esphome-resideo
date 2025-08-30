@@ -1,12 +1,8 @@
 #include "cm1106_sniffer_sensor.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
-#include "esphome/components/uart/uart_component.h"
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
-#include <string.h>
-#include <vector>
-#include <algorithm>
 
 namespace esphome {
 namespace cm1106_sniffer {
@@ -15,12 +11,12 @@ static const char *const TAG = "cm1106_sniffer";
 
 void CM1106Sniffer::setup() {
   ESP_LOGCONFIG(TAG, "Setting up CM1106 Sniffer Sensor...");
-  // Clear any data in the UART buffer
+  // Clear any data in the UART bus.
   this->flush();
 }
 
 void CM1106Sniffer::loop() {
-  // Read any available data from the UART bus
+  // Read any available data from the UART bus.
   while (this->available()) {
     uint8_t byte;
     this->read_byte(&byte);
