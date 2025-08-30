@@ -4,7 +4,6 @@ from esphome.components import sensor, uart
 from esphome.const import (
     CONF_ID,
     CONF_UPDATE_INTERVAL,
-    CONF_CO2,
     UNIT_PARTS_PER_MILLION,
     ICON_MOLECULE_CO2,
     STATE_CLASS_MEASUREMENT,
@@ -19,20 +18,18 @@ CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Poll
 
 # Define the configuration schema for the component
 CONFIG_SCHEMA = (
-    cv.Schema(
+    sensor.sensor_schema(
         {
-            cv.GenerateID(): cv.declare_id(CM1106Sniffer),
-            cv.Optional(CONF_CO2): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PARTS_PER_MILLION,
-                icon=ICON_MOLECULE_CO2,
-                accuracy_decimals=0,
-                device_class=DEVICE_CLASS_CARBON_DIOXIDE,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
-        },
+            "unit_of_measurement": UNIT_PARTS_PER_MILLION,
+            "icon": ICON_MOLECULE_CO2,
+            "accuracy_decimals": 0,
+            "device_class": DEVICE_CLASS_CARBON_DIOXIDE,
+            "state_class": STATE_CLASS_MEASUREMENT,
+        }
     )
     .extend(
-        {     
+        {
+            cv.GenerateID(): cv.declare_id(CM1106Sniffer),
             # The component requires the UART bus ID to connect to
             cv.Required(uart.CONF_UART_ID): cv.use_id(uart.UARTComponent),
         }
@@ -47,13 +44,15 @@ def to_yaml(config):
     pass
 
 
-def to_code(config):
+async def to_code(config):
+    # Get the UART bus ID from the configuration
     var = cg.new_Pvariable(config[CONF_ID])
-    yield cg.register_component(var, config)
+    await cg.register_component(var, config)
 
-    parent = yield cg.get_variable(config[CONF_UART_ID])
-    cg.add(var.set_uart_bus(parent))
+    # Get a reference to the UART component variable
+    uart_component = await cg.get_variable(config[uart.CONF_UART_ID])
+    # Call the setter method on the C++ component
+    cg.add(var.set_uart_parent(uart_component))
 
-    if CONF_CO2 in config:
-        sens = yield sensor.new_sensor(config[CONF_CO2])
-        cg.add(var.set_co2_sensor(sens))
+    # Use a sensor schema
+    await sensor.register_sensor(var, config)
