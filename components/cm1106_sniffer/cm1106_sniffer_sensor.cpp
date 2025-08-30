@@ -72,7 +72,7 @@ void CM1106SnifferSensor::handle_byte(uint8_t byte) {
   // Extract the CO2 value
   uint16_t co2_value = (uint16_t) this->buffer_[3] << 8 | this->buffer_[4];
   
-  // Publish the value to the sensor if it exists
+  // Publish the value to the sensor
   if (this->co2_sensor_ != nullptr) {
     this->co2_sensor_->publish_state(co2_value);
     ESP_LOGD(TAG, "CO2 value: %d ppm", co2_value);
@@ -88,6 +88,7 @@ void CM1106SnifferSensor::reset_buffer_() {
 }
 
 void CM1106SnifferSensor::dump_config() {
+  // FIX: This should log the component's config, not the sensor's, as the component itself is not a sensor
   LOG_COMPONENT_CONFIG(TAG, "CM1106 Sniffer");
   LOG_UART_DEVICE(this);
 }
