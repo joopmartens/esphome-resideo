@@ -67,6 +67,13 @@ void CM1106Sniffer::dump_config() {
   // Use the base class methods to dump all configuration properties
   PollingComponent::dump_config();
   LOG_SENSOR("  ", "CM1106Sniffer", this);
+  
+  // Manually log the properties to verify they are being set
+  ESP_LOGCONFIG(TAG, "  Accuracy Decimals: %d", this->get_accuracy_decimals());
+  ESP_LOGCONFIG(TAG, "  Unit of Measurement: %s", this->get_unit_of_measurement().c_str());
+  ESP_LOGCONFIG(TAG, "  Icon: %s", this->get_icon().c_str());
+  ESP_LOGCONFIG(TAG, "  Device Class: %s", this->get_device_class().c_str());
+  ESP_LOGCONFIG(TAG, "  State Class: %s", this->get_state_class().c_str());
 }
 
 void CM1106Sniffer::update() {
