@@ -1,7 +1,7 @@
 #include "cm1106_sniffer_sensor.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
-#include "esphome/components/uart/uart_component.h"
+#include "esphome/components/uart/uart_component.h" // This line is required for LOG_UART_DEVICE
 #include <string.h>
 #include <vector>
 #include <algorithm>
