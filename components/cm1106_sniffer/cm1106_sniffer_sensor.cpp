@@ -73,7 +73,7 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
 void CM1106Sniffer::dump_config() {
   // Use the base class methods to dump all configuration properties
   PollingComponent::dump_config();
-  sensor::Sensor::dump_config();
+  LOG_SENSOR("  ", "CM1106Sniffer", this);
 }
 
 void CM1106Sniffer::update() {
