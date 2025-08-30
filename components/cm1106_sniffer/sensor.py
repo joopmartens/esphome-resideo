@@ -12,6 +12,10 @@ from esphome.const import (
     STATE_CLASS_MEASUREMENT,
     CONF_ACCURACY_DECIMALS,
     CONF_NAME,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_ICON,
+    CONF_DEVICE_CLASS,
+    CONF_STATE_CLASS,
 )
 
 # Define the namespace for the component
