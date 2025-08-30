@@ -90,8 +90,8 @@ void CM1106Sniffer::reset_buffer_() {
 }
 
 void CM1106Sniffer::dump_config() {
-  LOG_COMPONENT_CONFIG(TAG, "CM1106 Sniffer");
-  LOG_UART_DEVICE(this);
+  //LOG_COMPONENT_CONFIG(TAG, "CM1106 Sniffer");
+  //LOG_UART_DEVICE(this);
 }
 
 // update() is not needed as the sensor is event-driven by the UART data
