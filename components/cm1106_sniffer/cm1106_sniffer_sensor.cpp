@@ -1,6 +1,7 @@
 #include "cm1106_sniffer_sensor.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
+#include <string.h>
 
 namespace esphome {
 namespace cm1106_sniffer {
@@ -25,13 +26,6 @@ void CM1106SnifferSensor::loop() {
 void CM1106SnifferSensor::handle_byte(uint8_t byte) {
   // This is a simple state machine to parse the CM1106 protocol.
   // The CM1106 sends a 9-byte packet.
-  // Byte 0: 0x16 (Start byte)
-  // Byte 1: 0x01 (Command)
-  // Byte 2: 0x02 (Payload length)
-  // Byte 3: High byte of CO2 value
-  // Byte 4: Low byte of CO2 value
-  // Byte 5-7: Reserved/ignored
-  // Byte 8: Checksum
   
   if (this->buffer_pos_ == 0 && byte != 0x16) {
     // We are at the start of a packet, but the byte is not the start byte.
@@ -72,7 +66,7 @@ void CM1106SnifferSensor::handle_byte(uint8_t byte) {
   // Extract the CO2 value
   uint16_t co2_value = (uint16_t) this->buffer_[3] << 8 | this->buffer_[4];
   
-  // Publish the value to the sensor
+  // Publish the value to the sensor if it exists
   if (this->co2_sensor_ != nullptr) {
     this->co2_sensor_->publish_state(co2_value);
     ESP_LOGD(TAG, "CO2 value: %d ppm", co2_value);
@@ -88,13 +82,19 @@ void CM1106SnifferSensor::reset_buffer_() {
 }
 
 void CM1106SnifferSensor::dump_config() {
-  // FIX: This should log the component's config, not the sensor's, as the component itself is not a sensor
+  // Use the base class methods to dump all configuration properties
   LOG_COMPONENT_CONFIG(TAG, "CM1106 Sniffer");
   LOG_UART_DEVICE(this);
+  if (this->co2_sensor_ != nullptr) {
+    LOG_SENSOR("  ", "CO2", this->co2_sensor_);
+  }
 }
 
 // update() is not needed as the sensor is event-driven by the UART data
-void CM1106SnifferSensor::update() {}
+void CM1106SnifferSensor::update() {
+  const uint8_t request_command[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
+  this->write_array(request_command, 9);
+}
 
 }  // namespace cm1106_sniffer
 }  // namespace esphome
