@@ -3,6 +3,8 @@
 #include "esphome/core/helpers.h"
 #include "esphome/components/uart/uart_component.h"
 #include <string.h>
+#include <vector>
+#include <algorithm>
 
 namespace esphome {
 namespace cm1106_sniffer {
