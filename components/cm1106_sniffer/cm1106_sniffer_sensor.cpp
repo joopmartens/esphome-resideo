@@ -1,22 +1,25 @@
 #include "cm1106_sniffer_sensor.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
-#include "esphome/components/uart/uart_component.h" // Added for LOG_UART_DEVICE and LOG_COMPONENT_CONFIG
+#include "esphome/components/uart/uart_component.h"
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
+#include <string.h>
+#include <vector>
+#include <algorithm>
 
 namespace esphome {
 namespace cm1106_sniffer {
 
 static const char *const TAG = "cm1106_sniffer";
 
-void CM1106Sniffer::setup() {
+void CM1106SnifferSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up CM1106 Sniffer Sensor...");
   // Clear any data in the UART buffer
   this->uart_device_->flush();
 }
 
-void CM1106Sniffer::loop() {
+void CM1106SnifferSensor::loop() {
   // Read any available data from the UART bus
   while (this->available()) {
     uint8_t byte;
@@ -25,7 +28,7 @@ void CM1106Sniffer::loop() {
   }
 }
 
-void CM1106Sniffer::handle_byte(uint8_t byte) {
+void CM1106SnifferSensor::handle_byte(uint8_t byte) {
   // This is a simple state machine to parse the CM1106 protocol.
   // The CM1106 sends a 9-byte packet.
   // Byte 0: 0x16 (Start byte)
@@ -85,18 +88,18 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
   this->reset_buffer_();
 }
 
-void CM1106Sniffer::reset_buffer_() {
+void CM1106SnifferSensor::reset_buffer_() {
   this->buffer_pos_ = 0;
   std::fill(this->buffer_, this->buffer_ + 9, 0);
 }
 
-void CM1106Sniffer::dump_config() {
+void CM1106SnifferSensor::dump_config() {
   LOG_COMPONENT_CONFIG(TAG, "CM1106 Sniffer");
   LOG_UART_DEVICE(this);
 }
 
 // update() is not needed as the sensor is event-driven by the UART data
-void CM1106Sniffer::update() {}
+void CM1106SnifferSensor::update() {}
 
 }  // namespace cm1106_sniffer
 }  // namespace esphome
