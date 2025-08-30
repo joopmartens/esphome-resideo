@@ -13,7 +13,6 @@ static const char *const TAG = "cm1106_sniffer";
 
 void CM1106SnifferSensor::setup() {
   ESP_LOGCONFIG(TAG, "Setting up CM1106 Sniffer Sensor...");
-  // The UARTDevice base class handles the setup, no need for an explicit flush.
 }
 
 void CM1106SnifferSensor::loop() {
