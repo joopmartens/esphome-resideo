@@ -11,10 +11,6 @@ from esphome.const import (
     STATE_CLASS_MEASUREMENT,
     CONF_ACCURACY_DECIMALS,
     CONF_NAME,
-    CONF_UNIT_OF_MEASUREMENT,
-    CONF_ICON,
-    CONF_DEVICE_CLASS,
-    CONF_STATE_CLASS,
 )
 
 # Define the namespace for the component
@@ -25,7 +21,6 @@ CM1106Sniffer = cm1106_sniffer_ns.class_("CM1106Sniffer", sensor.Sensor, cg.Poll
 
 # Dependencies for the component
 DEPENDENCIES = ["uart"]
-AUTO_LOAD = ["sensor"]
 
 # Define the configuration schema to extend the sensor base schema
 CONFIG_SCHEMA = cv.All(
