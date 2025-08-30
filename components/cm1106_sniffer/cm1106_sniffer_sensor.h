@@ -1,33 +1,32 @@
 #pragma once
 
-#include "esphome/core/component.h"
-#include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
-#include "esphome/core/log.h"
+#include "esphome/components/uart/uart.h"
+#include "esphome/core/component.h"
+#include "esphome/core/helpers.h"
 
 namespace esphome {
 namespace cm1106_sniffer {
 
-class CM1106Sniffer : public esphome::PollingComponent, public uart::UARTDevice {
+class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
  public:
-  // Public methods required by ESPHome
   void setup() override;
   void loop() override;
   void dump_config() override;
   void update() override;
 
-  // Setter to link the component to the ESPHome sensor.
-  void set_co2_sensor(sensor::Sensor *sensor) { this->co2_sensor_ = sensor; }
+  void set_uart_parent(uart::UARTComponent *uart_parent) { this->uart_component_ = uart_parent; }
 
  protected:
-  // Private helper methods for handling the data stream
   void handle_byte(uint8_t byte);
   void reset_buffer_();
-
-  // Member variables for the state machine
-  uint8_t buffer_[9] = {0};
+  
+  uart::UARTComponent *uart_component_{nullptr};
+  uint8_t buffer_[9];
   uint8_t buffer_pos_{0};
-  sensor::Sensor *co2_sensor_{nullptr};
+  uint16_t co2_value_ = 0;
+  bool should_update_ = true;
+  bool frame_ready_ = false;
 };
 
 }  // namespace cm1106_sniffer
