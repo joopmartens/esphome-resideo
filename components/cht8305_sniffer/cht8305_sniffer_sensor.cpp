@@ -1,7 +1,6 @@
 /**
  * Specifications CHT8305 T/H Sensor
- * Oct 2017 rev 1.1 SENSYLINK MIcroelectronics Co. LTD
- * https://www.semiee.com/file/Sensylink/Sensylink-CHT8305.pdf
+ * https://dfimg.dfrobot.com/5ea64bf6cf1d8c7738ad2881/wiki/98bc09dcde89e9f3934f6d7f1d1fff32.pdf
  */
 
 #include "cht8305_sniffer_sensor.h"
@@ -45,7 +44,11 @@ void IRAM_ATTR i2cTriggerOnRaisingSCL(void *arg) {
             I2C_HANDLE_NACK; // On NACK we end the conversation as the slave declined the address.
             global_instance->device_register_ptr_ = global_instance->data_;
         } else {
-            global_instance->device_register_[global_instance->device_register_ptr_++] = global_instance->data_;
+            //global_instance->device_register_[global_instance->device_register_ptr_++] = global_instance->data_;
+            // Prevent buffer overflow by checking the pointer against the array size.
+            if (global_instance->device_register_ptr_ < sizeof(global_instance->device_register_)) {
+                global_instance->device_register_[global_instance->device_register_ptr_++] = global_instance->data_;
+            }      
             I2C_HANDLE_NACK; // On NACK we end the conversation AFTER storing the data.
         }
         global_instance->byte_idx_++;
@@ -128,33 +131,50 @@ void CHT8305SnifferSensor::loop() {
         uint16_t temp = (uint16_t)this->device_register_[0] << 8 | this->device_register_[1];
         uint16_t humidity = (uint16_t)this->device_register_[2] << 8 | this->device_register_[3];
 
+        //Protect access to raw data vectors with a mutex to prevent exceptions
+        std::lock_guard<esphome::Mutex> lock(this->raw_data_mutex_);
         this->temperature_raw_.push_back(temp);
         this->humidity_raw_.push_back(humidity);
     }
 }
 
 void CHT8305SnifferSensor::update() {
+    //Protect access to raw data vectors with a mutex to prevent exceptions
+    std::lock_guard<esphome::Mutex> lock(this->raw_data_mutex_);
     if (this->temperature_raw_.empty() || this->humidity_raw_.empty()) {
         ESP_LOGW(TAG, "No data available to update sensors.");
         return;
     }
-    ESP_LOGD(TAG, "Taking the mean from a window size %d", this->temperature_raw_.size());
+    ESP_LOGD(TAG, "Calculating the median from a window size %d", this->temperature_raw_.size());
     std::sort(this->temperature_raw_.begin(), this->temperature_raw_.end());
     std::sort(this->humidity_raw_.begin(), this->humidity_raw_.end());
     
     uint16_t temp_median = this->temperature_raw_[this->temperature_raw_.size() / 2];
     uint16_t hum_median = this->humidity_raw_[this->humidity_raw_.size() / 2];
 
-    float temp = (static_cast<float>(temp_median) * 165.0f / 65535.0f) - 40.0f;
-    float hum = (static_cast<float>(hum_median) * 100.0f / 65535.0f);
+    // Convert raw data to actual values
+    float temp_value = (static_cast<float>(temp_median) * 165.0f / 65535.0f) - 40.0f;
+    float hum_value = (static_cast<float>(hum_median) * 100.0f / 65535.0f);
+    
+    // Validate ranges before publishing
+    if (temp_value >= -5 && temp_value <= 50) {
+      float temp = temp_value;
+        if (this->temperature_sensor_ != nullptr)
+            this->temperature_sensor_->publish_state(temp);
+    } else {
+        ESP_LOGW(TAG, "Temperature value %.2f°C is out of range (-5-50), not publishing.", temp_value);
+    }
+
+    if (hum_value >= 1 && hum_value <= 100) {
+      float hum = hum_value;
+        if (this->humidity_sensor_ != nullptr)
+            this->humidity_sensor_->publish_state(hum);
+    } else {
+        ESP_LOGW(TAG, "Humidity value %.2f%% is out of range (1-100), not publishing.", hum_value);
+    }
 
     this->temperature_raw_.clear();
     this->humidity_raw_.clear();
-
-    if (this->temperature_sensor_ != nullptr)
-        this->temperature_sensor_->publish_state(temp);
-    if (this->humidity_sensor_ != nullptr)
-        this->humidity_sensor_->publish_state(hum);
 }
 
 void CHT8305SnifferSensor::dump_config() {

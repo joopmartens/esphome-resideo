@@ -27,6 +27,8 @@ class CM1106Sniffer : public sensor::Sensor, public PollingComponent {
   uint16_t co2_value_ = 0;
   bool should_update_ = true;
   bool frame_ready_ = false;
+
+  esphome::Mutex raw_data_mutex_;
 };
 
 }  // namespace cm1106_sniffer

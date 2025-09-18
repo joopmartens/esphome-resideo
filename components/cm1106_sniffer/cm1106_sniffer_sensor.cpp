@@ -28,17 +28,13 @@ void CM1106Sniffer::loop() {
   if (this->uart_component_ == nullptr) {
     return;
   }
-  // Only process one frame if an update is due
-  if (!this->should_update_) {
-    return;
-  }
+
   while (this->uart_component_->available()) {
     uint8_t byte;
     this->uart_component_->read_byte(&byte);
     this->handle_byte(byte);
     // After handling one full frame, stop processing
     if (this->frame_ready_) {
-      this->should_update_ = false;
       this->frame_ready_ = false;
       return;
     }
@@ -78,28 +74,43 @@ void CM1106Sniffer::handle_byte(uint8_t byte) {
     return;
   }
 
-  uint16_t co2_value = (uint16_t) this->buffer_[3] << 8 | this->buffer_[4];
-  
-  if (co2_value >= 350 && co2_value <= 5000) {
-    this->co2_value_ = co2_value; // Store the value instead of publishing
-    ESP_LOGD(TAG, "CO2 value: %d ppm", co2_value);
-  } else {
-    ESP_LOGW(TAG, "Received CO2 value %d ppm is outside the valid range (350-5000), not storing.", co2_value);
-  }
+  uint16_t co2_raw_value = (uint16_t) this->buffer_[3] << 8 | this->buffer_[4];
+  //Protect access to raw data vectors with a mutex to prevent exceptions
+  std::lock_guard<esphome::Mutex> lock(this->raw_data_mutex_);
+  this->co2_raw_.push_back(co2_raw_value);
+
   
   this->reset_buffer_();
   this->frame_ready_ = true; // Signal that a new frame has been processed
 }
 
 void CM1106Sniffer::dump_config() {
-  //ESP_LOGCONFIG(TAG, "cm1106_sniffer:");
   LOG_SENSOR(TAG, "cm1106_sniffer:", this);
 }
 
 void CM1106Sniffer::update() {
-  this->should_update_ = true;
-  this->loop();
-  this->publish_state(this->co2_value_);
+  //Protect access to raw data vectors with a mutex to prevent exceptions
+  std::lock_guard<esphome::Mutex> lock(this->raw_data_mutex_);
+  if (this->co2_raw_.empty() || this->co2_raw_.size() < 3) {
+      ESP_LOGW(TAG, "No data available to update co2 sensor.");
+      return;
+  }
+  ESP_LOGD(TAG, "Calculating the median from a window size %d", this->co2_raw_.size());
+  std::sort(this->co2_raw_.begin(), this->co2_raw_.end());
+
+  uint16_t co2_median = this->co2_raw_[this->co2_raw_.size() / 2];
+
+  // Validate CO2 value range before storing
+  if (co2_median >= 350 && co2_median <= 5000) {
+       this->co2_value_ = co2_median;
+       this->publish_state(this->co2_value_);
+       this->co2_value_ = 0;
+      //ESP_LOGD(TAG, "CO2 value: %d ppm", co2_median);
+  } else {
+    ESP_LOGW(TAG, "Received CO2 value %d ppm is outside the valid range (350-5000), not publishing.", co2_median);
+  } 
+
+  this->co2_raw_.clear();
 }
 
 void CM1106Sniffer::reset_buffer_() {
